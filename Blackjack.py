@@ -230,6 +230,11 @@ class Blackjack:
             return min(possible_hand_values)
 
     def get_card(self):
+        """ 
+        Draws a card from the deck. 
+        random.sample returns a k length list of unique elements chosen from the population sequence 
+        (Used for random sampling without replacement).
+        """
         card_id = int(random.sample(xrange(1, 52), 1)[0]) # n_cards
         range_per_club = 13 #52/4
         #print "Get card: ",card_id
