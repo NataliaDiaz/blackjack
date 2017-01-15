@@ -16,17 +16,18 @@ DIAMOND = 'DIAMOND'
 
 class Card:
     def __init__(self, number, suit):
-        if number >= 2 and number <=10:
+        if number >= 1 and number <=10:
             self.value = number
         elif number == 11 or number == 12 or number == 13:
             self.value = 10
         else:
-            self.value = number
+            print "wrong number for card"
+            sys.exit(-1)
         self.number = number
         self.suit = suit
         #print "Drawn card: ", self.number, self.suit,"(",self.value,")"
-        
-    
+
+
 class Blackjack:
     """
     Objective of the game: to have the most points.
@@ -66,8 +67,9 @@ class Blackjack:
         self.suit2symbol[SPADE] = '♠'
         self.suit2symbol[DIAMOND] = '♦'
         self.suit2symbol[CLUB] = '♣'
+        self.remaining_deck = range(1, 52)
 
-        print("\n\n\n\nStarting Blackjack game... ")
+        print("\n\n\n\nStarting Blackjack game...\n")#Full deck available: ",self.remaining_deck)
 
     def play(self):
         self.player_cards = []
@@ -79,7 +81,10 @@ class Blackjack:
         print "First round: \n Player got: "
         self.print_cards_and_get_points(HUMAN)
         print "\n Dealer got: "
-        self.print_cards_and_get_points(DEALER) 
+        self.print_cards_and_get_points(DEALER)
+        if self.score_overpasses_max(HUMAN) or self.score_overpasses_max(DEALER):
+            self.print_results()
+            return
         try:
             # Player's turn
             option = HIT
@@ -107,7 +112,7 @@ class Blackjack:
             return False
 
     def play_turn(self, player):
-        """ 
+        """
         Returns the player's turn decision: HIT or STAY
         """
         print "********\nGame score:"#" Player=", self.player_points, " Dealer: ", self.dealer_points
@@ -137,9 +142,9 @@ class Blackjack:
 
         except ValueError:
             print "Not a valid option, input H or S"
-    
+
     def play_dealer(self):
-        """ 
+        """
         Safe player dealer stays after he reaches 17 as a safe bet strategy to win,
         while he does not go over 21
         """
@@ -168,10 +173,10 @@ class Blackjack:
             print "----> ----> ----> Tie! (P: ",player_score, ", D: ",dealer_score,")"
         else:
             print "----> ----> ----> Wrong unfeasible option! ",player_score, ", D: ",dealer_score,")"
-        
+
     def print_cards_and_get_points(self, player):
         if player == DEALER:
-            cards = self.dealer_cards[:]  
+            cards = self.dealer_cards[:]
         elif player == HUMAN:
             cards = self.player_cards[:]
         else:
@@ -186,7 +191,7 @@ class Blackjack:
 
     def get_points_sum(self, player):
         if player == HUMAN:
-            cards = self.player_cards[:] # needed to make the full copy 
+            cards = self.player_cards[:] # needed to make the full copy
         elif player == DEALER:
             cards = self.dealer_cards[:]
         else:
@@ -196,12 +201,11 @@ class Blackjack:
         total = 0
         total_aces = 0
         for c in cards:
-            if c.number !=1: 
+            if c.number !=1:
                 total += c.value
             else:
                 total_aces += 1
         # compute most optimal value for the ACES
-        total_aces = 1
         if total_aces>0:
             aces_values = [1, 11]
             possible_hand_values = set()
@@ -209,7 +213,7 @@ class Blackjack:
             # cartesian product to obtain all possibilities of hand values list(itertools.product([1,2], repeat=3))
             possibilities = set(list(itertools.product(aces_values, repeat=total_aces)))#combinations(aces_values, 2)) # length of each combination # does not produce same item repetitions
             for combination_tuple in possibilities:
-                possible_score = total 
+                possible_score = total
                 for i in range(len(combination_tuple)):
                     possible_score += combination_tuple[i]
                 possible_hand_values.add(possible_score)
@@ -230,14 +234,17 @@ class Blackjack:
             return min(possible_hand_values)
 
     def get_card(self):
-        """ 
-        Draws a card from the deck. 
-        random.sample returns a k length list of unique elements chosen from the population sequence 
+        """
+        Draws a card from the deck.
+        random.sample returns a k length list of unique elements chosen from the population sequence
         (Used for random sampling without replacement).
         """
-        card_id = int(random.sample(xrange(1, 52), 1)[0]) # n_cards
+        #random.sample(xrange(len(mylist)), sample_size)
+        card_id = random.sample(self.remaining_deck, 1)[0] # n_cards
+        #print "Before taking card: ", card_id, self.remaining_deck
+        self.remaining_deck.remove(card_id)
+        #print "After taking card: ", self.remaining_deck
         range_per_club = 13 #52/4
-        #print "Get card: ",card_id
         if card_id / range_per_club == 0:
             suit = CLUB
         elif card_id / range_per_club == 1:
@@ -249,7 +256,7 @@ class Blackjack:
         else:
             print "Invalid suit error!"
         card_number = (card_id%range_per_club)+1
-        #print card_number, suit
+        print "Got card: ",card_id, "(-> ",card_number,")"
         return Card(card_number, suit)
 
 if __name__ == "__main__":
