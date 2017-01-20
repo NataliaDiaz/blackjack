@@ -256,7 +256,7 @@ class Blackjack:
         else:
             print "Invalid suit error!"
         card_number = (card_id%range_per_club)+1
-        print "Got card: ",card_id, "(-> ",card_number,")"
+        #print "Got card: ",card_id, "(-> ",card_number,")"
         return Card(card_number, suit)
 
 if __name__ == "__main__":
